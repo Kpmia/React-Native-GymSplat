@@ -1,100 +1,50 @@
-import React from "react";
+import React from "react"
 import {
   StyleSheet,
   Dimensions,
   ScrollView,
   Image,
   View,
-  Modal,
   Text,
-  Platform,
-  TouchableOpacity,
   Button,
-} from "react-native";
+  Easing,
+} from "react-native"
 
-import GymFloor from "../assets/imgs/GymFloorMapp.png";
-import ScrollBottomSheet from "react-native-scroll-bottom-sheet";
-import Storage from "react-native-storage";
-import AsyncStorage from "@react-native-community/async-storage";
+import GymFloor from "../assets/imgs/GymFloorMapp.png"
+import ScrollBottomSheet from "react-native-scroll-bottom-sheet"
 
-import AuthManager from "./networking/AuthManager";
-import AuthManager, { ServerManager } from "./networking/ServerManager";
+import AuthManager from "./networking/AuthManager"
+import ServerManager from "./networking/ServerManager"
+import MachineCell from "../components/MachineCell"
 
-const { width } = Dimensions.get("screen");
-const windowHeight = Dimensions.get("window").height;
+const { width } = Dimensions.get("screen")
+const windowHeight = Dimensions.get("window").height
 
 class Home extends React.Component {
   constructor() {
-    super();
+    super()
     this.state = {
       uid: "",
       firstName: "",
       lastName: "",
       email: "",
       machines: [],
-    };
-  }
-
-  reserveMachine(event) {
-    let ws = new WebSocket("wss://gym-splat-backend.ue.r.appspot.com/");
-    ws.onopen = () => {
-      const data = {
-        id: "67dgsjfgsdsjdhxxdsjfhdfjjfdddhdd4djfhje37",
-        user: {
-          _id: this.state.uid,
-          email: this.state.email,
-          firstName: this.state.firstName,
-          lastName: this.state.lastName,
-        },
-        duration: 5,
-        peopleCount: 1,
-        allowsWorkIns: false,
-        machine: event.id,
-      };
-
-      const newData = JSON.stringify({ workout: data, action: "ADD" });
-
-      ws.send(newData);
-
-      ws.onmessage = (message) => {};
-      alert("Added to the Queue!");
-      this.getMachines();
-    };
-  }
-
-  removeMachine(event) {
-    var ws = new WebSocket("wss://gym-splat-backend.ue.r.appspot.com/");
-
-    ws.onopen = () => {
-      const data = {
-        id: event.itemId,
-        machine: event.id,
-      };
-      const deleteAction = JSON.stringify({ workout: data, action: "DELETE" });
-
-      ws.send(deleteAction);
-      ws.onmessage = (message) => {
-        console.log(JSON.parse(message.data));
-      };
-
-      alert("Removed!");
-
-      this.getMachines();
-    };
+    }
   }
 
   componentDidMount() {
-    AuthManager.getSignedInUser().then((userData) => {
-      this.setState({ firstName: userData.user.firstName });
-      this.setState({ lastName: userData.user.lastName });
-      this.setState({ email: userData.user.email });
-      this.setState({ uid: uuserData.user._id });
-    });
+    AuthManager.getSignedInUser().then(userData => {
+      this.setState({ firstName: userData.user.firstName })
+      this.setState({ lastName: userData.user.lastName })
+      this.setState({ email: userData.user.email })
+      this.setState({ uid: userData.user._id })
+    })
 
-    ServerManager.getMachines().then((machineData) => {
+    ServerManager.getMachines().then(machineData => {
       if (machineData != null) {
+        this.setState({ machines: machineData })
       }
-    });
+    })
   }
 
   render() {
@@ -110,13 +60,13 @@ class Home extends React.Component {
           </ScrollView>
         </ScrollView>
 
-        <ScrollBottomSheet // If you are using TS, that'll infer the renderItem `item` type
+        <ScrollBottomSheet
           componentType="FlatList"
           snapPoints={[128, "50%", windowHeight - 200]}
           initialSnapIndex={1}
           animationConfig={{
             duration: 150,
-            easing: Easing.inOut(Easing.linear),
+            easing: Easing.linear, // Elastic would look cool
           }}
           renderHandle={() => (
             <View style={styles.header}>
@@ -128,8 +78,7 @@ class Home extends React.Component {
                   fontWeight: "bold",
                   fontSize: 30,
                   textAlign: "left",
-                }}
-              >
+                }}>
                 {" "}
                 {"Hi " + this.state.firstName + " " + this.state.lastName + "!"}
               </Text>
@@ -141,8 +90,7 @@ class Home extends React.Component {
                   fontWeight: "lighter",
                   fontSize: 15,
                   textAlign: "left",
-                }}
-              >
+                }}>
                 It is not too busy.
               </Text>
               <Text
@@ -153,113 +101,24 @@ class Home extends React.Component {
                   fontSize: 23,
                   textAlign: "left",
                   fontWeight: "bold",
-                }}
-              >
+                }}>
                 Reserve equipment
               </Text>
               <View style={styles.panelHandle} />
             </View>
           )}
-          data={Array.from([1]).map((i) => String(i))}
-          keyExtractor={(i) => 3}
-          renderItem={(item) =>
-            this.state.allMachines &&
-            this.state.allMachines.map((event) => {
-              return (
-                <View style={styles.item}>
-                  <View style={{ flex: 1, flexDirection: "row" }}>
-                    <Image
-                      style={{
-                        float: "right",
-                        width: 70,
-                        height: 70,
-                        textAlign: "left",
-                        marginRight: 5,
-                      }}
-                      source={event.img}
-                    />
-
-                    <View style={{ flexDirection: "column" }}>
-                      {/* <Text style={{color: 'white', fontWeight: 'bold',  fontSize: 23, marginLeft: 10}}> {event.status.toString()} </Text> */}
-
-                      <Text
-                        style={{
-                          color: "white",
-                          fontWeight: "bold",
-                          fontSize: 23,
-                          marginLeft: 10,
-                        }}
-                      >
-                        {" "}
-                        {event.name}{" "}
-                      </Text>
-                      {event.status ? (
-                        <Text
-                          style={{
-                            color: "white",
-                            fontWeight: "lighter",
-                            fontSize: 15,
-                            marginLeft: 10,
-                          }}
-                        >
-                          {"You are " + event.position + " in line "}
-                        </Text>
-                      ) : null}
-                      <Text
-                        style={{
-                          color: "white",
-                          fontWeight: "lighter",
-                          fontSize: 15,
-                          marginLeft: 10,
-                        }}
-                      >
-                        {" "}
-                        {event.queue.length == 1
-                          ? "1 person in line"
-                          : event.queue.length + " people in line"}
-                      </Text>
-                    </View>
-
-                    <View style={{ flexDirection: "column" }}>
-                      {!event.status ? (
-                        <View>
-                          <Button
-                            title="Reserve"
-                            style={{ marginLeft: 30, width: 30, height: 30 }}
-                            onPress={() => this.reserveMachine(event)}
-                          />
-                          <Text
-                            onPress={() => this.reserveMachine(event)}
-                            style={{
-                              color: "white",
-                              fontWeight: "lighter",
-                              fontSize: 10,
-                              marginLeft: 23,
-                              marginTop: 6,
-                            }}
-                          >
-                            {" "}
-                            Reserve
-                          </Text>
-                        </View>
-                      ) : (
-                        <Button
-                          title="Remove"
-                          style={{ marginLeft: 30, width: 30, height: 30 }}
-                          onPress={() => this.removeMachine(event)}
-                        />
-                      )}
-                    </View>
-                  </View>
-                  <View style={styles.lineSeparater} />
-                </View>
-              );
-            })
-          }
+          data={this.state.machines}
+          keyExtractor={i => i.id}
+          renderItem={item => (
+            <View style={{ margin: 8 }}>
+              <MachineCell machine={item} />
+              <View style={styles.lineSeparater} />
+            </View>
+          )}
           contentContainerStyle={styles.contentContainerStyle}
         />
       </View>
-    );
+    )
   }
 }
 
@@ -287,6 +146,11 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.3)",
     borderRadius: 4,
   },
+  item: {
+    padding: 10,
+    backgroundColor: "rgb(57, 57, 57)",
+    alignItems: "center",
+  },
   lineSeparater: {
     justifyContent: "center",
     borderRadius: 2,
@@ -294,14 +158,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFF",
     height: 1,
     marginTop: 4,
-    width: 300,
   },
-  item: {
-    padding: 10,
-    // justifyContent: 'center',
-    backgroundColor: "rgb(57, 57, 57)",
-    alignItems: "center",
-  },
-});
+})
 
-export default Home;
+export default Home

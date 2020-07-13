@@ -1,6 +1,11 @@
 import React, { useState } from "react"
 import { machineImages } from "../constants/Images"
 import { View, Button, Text, Image, StyleSheet } from "react-native"
+import AuthManager from '../screens/networking/AuthManager';
+import ServerManager from '../screens/networking/ServerManager'
+import axios from 'axios';
+
+const random = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
 
 const removeFromQueue = (ws, workoutId, machineId) => {
   const data = {
@@ -8,67 +13,66 @@ const removeFromQueue = (ws, workoutId, machineId) => {
     machine: machineId,
   }
   const deleteAction = JSON.stringify({ workout: data, action: "DELETE" })
-
   ws.send(deleteAction)
+  alert('Removed!')
 }
 
 const reserveMachine = (ws, machine) => {
-  const data = {
-    id: "67dgsjfgsdsjdhxxdsjfhdfjjfdddhdd4djfhje37",
-    // user: {
-    //   _id: this.state.uid,
-    //   email: this.state.email,
-    //   firstName: this.state.firstName,
-    //   lastName: this.state.lastName,
-    // },
-    duration: 5,
-    peopleCount: 1,
-    allowsWorkIns: false,
-    machine: machine.id,
-  }
-  const action = JSON.stringify({ workout: data, action: "ADD" })
-  ws.send(action)
-  alert("Reserved")
+  AuthManager.getSignedInUser().then(userData => {
+    const data = {
+      id: random,
+      user: { _id: userData.user._id, email: userData.user.email, firstName: userData.user.firstName, lastName: userData.user.lastName},
+      duration: 5,
+      peopleCount: 1,
+      allowsWorkIns: false,
+      machine: machine.id,
+    }
+    const action = JSON.stringify({ workout: data, action: "ADD" })
+    ws.send(action)
+    alert("Reserved")
+  })
 }
 
-const MachineCell = props => {
-  const [reserved, setReserved] = useState(false)
-  const [queue, setQueue] = useState([])
 
-  const machine = props.machine.item
-  const ws = new WebSocket("wss://gym-splat-backend.ue.r.appspot.com/")
-  ws.onmessage = message => {
-    const data = JSON.parse(message.data)
-    setQueue(data)
+const MachineCell = props => {
+
+  const ws = new WebSocket('https://gym-splat-backend.ue.r.appspot.com/')
+  
+  var machine = props.machine.item
+
+  if (machine.position == 1) {
+    position = "1st"
+  } else {
+    position = machine.position
   }
 
   return (
     <View style={styles.item}>
       <Image style={styles.machineImage} source={machineImages[machine.name]} />
-
       <View>
-        <Text style={styles.nameText}>{machine.name} </Text>
+        <Text style={styles.nameText}> {machine.name} </Text>
         <Text style={styles.statusText}>
-          {reserved ? "You are " + machine.position + " in line " : ""}
+          {machine.status ? "You are " + position + " in line " : ""}
         </Text>
         <Text style={styles.statusText}>
-          {queue.length == 1
+          {machine.queue.length == 1
             ? "1 person in line"
-            : queue.length + " people in line"}
+            : machine.queue.length + " people in line"}
         </Text>
       </View>
 
       <Button
-        title={reserved ? "Remove" : "Reserve"}
+        title={machine.status ? "Remove" : "Reserve"}
         onPress={() => {
-          reserved
-            ? removeFromQueue(ws, "", machine.id)
+          machine.status
+            ? removeFromQueue(ws, machine.workoutId, machine.id)
             : reserveMachine(ws, machine)
 
-          setReserved(old => !old)
         }}></Button>
     </View>
   )
+
+
 }
 
 const styles = StyleSheet.create({

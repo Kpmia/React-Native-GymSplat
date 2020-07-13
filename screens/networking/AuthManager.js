@@ -20,6 +20,24 @@ const AuthManager = {
     return true;
   },
 
+  signUp: async (email, password, firstName, lastName) => {
+    const signUp = {
+      method: "POST",
+      url: "http://gym-splat-backend.ue.r.appspot.com/signUp",
+      data: { email : email, password : password, firstName: firstName, lastName: lastName },
+      headers: { "Content-Type": "application/json" },
+    };
+    try {
+      const response = await axios(signUp);
+      const jsonValue = JSON.stringify(response.data);
+      await AsyncStorage.setItem("@userInfo", jsonValue);
+    } catch (e) {
+      console.log(`Login error: ${e}`);
+      return false;
+    }
+    return true;
+  },
+
   getSignedInUser: async () => {
     try {
       const jsonValue = await AsyncStorage.getItem("@userInfo");
@@ -30,6 +48,16 @@ const AuthManager = {
       return null;
     }
   },
+  
+  logUserOut: async() => {
+    try {
+      await AsyncStorage.clear();
+      console.log('Logged user out');
+    } catch (e) {
+      console.log('Something went wrong.');
+      return null
+    }
+  }
 };
 
 export default AuthManager;

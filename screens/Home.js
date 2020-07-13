@@ -8,17 +8,29 @@ import {
   Text,
   Button,
   Easing,
+  Alert,
+  Modal,
 } from "react-native"
+ 
+import { Block, Card } from 'galio-framework';
 
-import GymFloor from "../assets/imgs/GymFloorMapp.png"
-import ScrollBottomSheet from "react-native-scroll-bottom-sheet"
+import GymFloor from "../assets/imgs/GymFloorMapp.png";
+import ScrollBottomSheet from "react-native-scroll-bottom-sheet";
 
-import AuthManager from "./networking/AuthManager"
-import ServerManager from "./networking/ServerManager"
-import MachineCell from "../components/MachineCell"
+import AuthManager from "./networking/AuthManager";
+import ServerManager from "./networking/ServerManager";
+import MachineCell from "../components/MachineCell";
+
+// import { machineImages } from "../constants/Images"
+
+import LottieView from 'lottie-react-native';
+import Ball from '../assets/animation/loadingball.json'
+import LoadingBall from '../components/LoadingScreen';
+import FloorCoordinates from '../components/FloorCoordinates';
 
 const { width } = Dimensions.get("screen")
 const windowHeight = Dimensions.get("window").height
+
 
 class Home extends React.Component {
   constructor() {
@@ -29,37 +41,99 @@ class Home extends React.Component {
       lastName: "",
       email: "",
       machines: [],
+      machineInfo: '',
+      isLoading: true
     }
   }
 
-  componentDidMount() {
-    AuthManager.getSignedInUser().then(userData => {
-      this.setState({ firstName: userData.user.firstName })
-      this.setState({ lastName: userData.user.lastName })
-      this.setState({ email: userData.user.email })
-      this.setState({ uid: userData.user._id })
-    })
-
-    ServerManager.getMachines().then(machineData => {
-      if (machineData != null) {
-        this.setState({ machines: machineData })
-      }
+  logOutButton = async() => {
+    AuthManager.logUserOut().then(event => {
+      this.props.navigation.navigate('onboarding');
+      console.log('logged out successfully.')
     })
   }
 
+  performTimeConsumingTask = async() => {
+    return new Promise((resolve) =>
+      setTimeout(
+        () => { resolve('result') },
+        2600
+      )
+    );
+  }
+
+  async componentDidMount() {
+      // document.location.reload();
+
+      AuthManager.getSignedInUser().then(userData => {
+        this.setState({ firstName: userData.user.firstName })
+        this.setState({ lastName: userData.user.lastName })
+        this.setState({ email: userData.user.email })
+        this.setState({ uid: userData.user._id })
+      })
+      ServerManager.getMachines().then(machineData => {
+        if (machineData != null) {
+          this.setState({ machines: machineData })
+        }
+      })
+      const data = await this.performTimeConsumingTask();
+
+      if (data !== null) {
+        this.setState({ isLoading: false });
+      }
+    }
+
+  showMachine = info => {
+    this.setState({ machineInfo : info })
+    this.setState({ modal : !this.state.modal })
+  }
+
+  closeMachine = info => {
+    this.setState({ modal : false })
+  }
+
   render() {
+    if (this.state.isLoading) {
+      return ( 
+      <View style={{paddingTop: 200,}}> 
+      <Block center>
+          <LottieView
+            style={{height: 200, width: 200}}
+            colorFilters={{
+              backgroundColor: '#FF'
+            }}
+            source={Ball}
+            autoPlay
+            loop
+      />
+      <Text style={{marginTop: 30, fontWeight: 'bold', color: '#4023B5'}}> Loading </Text>
+      {/* <Image 
+        style={{width: 30, height: 30}}
+        source={require('../assets/imgs/gymsplaticon.png')}
+        /> */}
+      </Block>
+      </View> 
+      );
+    } else {
+
     return (
-      <View style={styles.container}>
+      <View 
+      style={styles.container}>
         <ScrollView vertical>
-          <ScrollView minimumZoomScale={1} maximumZoomScale={3} horizontal>
+          <ScrollView minimumZoomScale={-10} maximumZoomScale={1} horizontal>
+
             <Image
-              style={{ width: 1300, height: 1100 }}
+              style={{ width: 5644,height: 4084}}
               source={GymFloor}
               resizeMode="stretch"
             />
-          </ScrollView>
-        </ScrollView>
+            <View style={{position: 'absolute'}}>
 
+            <FloorCoordinates />
+
+            </View>
+          </ScrollView>
+          </ScrollView>
         <ScrollBottomSheet
           componentType="FlatList"
           snapPoints={[128, "50%", windowHeight - 200]}
@@ -82,6 +156,11 @@ class Home extends React.Component {
                 {" "}
                 {"Hi " + this.state.firstName + " " + this.state.lastName + "!"}
               </Text>
+              <Button onPress={this.logOutButton} title="logout" />
+
+              <Block row right>
+              </Block>
+
               <Text
                 style={{
                   marginLeft: 20,
@@ -117,15 +196,27 @@ class Home extends React.Component {
           )}
           contentContainerStyle={styles.contentContainerStyle}
         />
+        <View>
+          <Block row right>
+          </Block>
+          </View>
       </View>
     )
   }
+}
 }
 
 const styles = StyleSheet.create({
   home: {
     width: width,
     backgroundColor: "black",
+  },
+  card: {
+    backgroundColor: 'white'
+  },
+  point: {
+    position: 'absolute',
+    zIndex: 999
   },
   container: {
     flex: 1,

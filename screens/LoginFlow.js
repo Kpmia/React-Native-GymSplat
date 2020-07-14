@@ -25,12 +25,11 @@ export default class LoginFlow extends React.Component {
     if (this.state.email == "" || this.state.password == "") {
       alert("Please fill out all fields");
       return;
-    }
+    };
     const success = await AuthManager.login(
       this.state.email,
       this.state.password
     );
-
     if (success) {
       console.log("login success");
       this.props.navigation.navigate("Home");
@@ -58,7 +57,6 @@ export default class LoginFlow extends React.Component {
           <Block style={{ zIndex: 0 }}>
             <Block>
               <Block>
-                <Text> </Text>
               </Block>
             </Block>
             <Block style={{ marginTop: 80 }}>

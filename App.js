@@ -17,9 +17,11 @@ import Tutorial from "./screens/Tutorial";
 import LoginFlow from "./screens/LoginFlow";
 import Activity from "./screens/Activity";
 
-const Stack = createStackNavigator();
-const Drawer = createDrawerNavigator();
+const Stack = createStackNavigator()
 const Tab = createBottomTabNavigator();
+const Drawer = createDrawerNavigator();
+
+
 
 // Before rendering any navigation stack
 import { enableScreens } from "react-native-screens";
@@ -56,8 +58,12 @@ export default (props) => {
   } else if (fontsLoaded) {
     return (
       <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="onboarding" component={onBoarding} />
+        <Stack.Navigator
+        drawerContentOptions={{ gesturesEnabled: false }}
+         screenOptions={{ headerShown: false, navigationOptions: {
+        gesturesEnabled: false,
+    }, }}>
+          <Stack.Screen gesturesEnabled={false} name="onboarding" component={onBoarding} />
           <Stack.Screen name="Pro" component={AuthForm} />
           <Stack.Screen name="Home" component={Home} />
           <Stack.Screen name="Tutorial" component={Tutorial} />

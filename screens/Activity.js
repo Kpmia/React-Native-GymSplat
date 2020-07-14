@@ -13,33 +13,33 @@ class Activity extends React.Component {
         return (
             <View>
                 <View>
+                  </View>
+                    <View>
+                  <ImageBackground
+                  source={GymSplatBackground}
+                  style={{position:'absolute', width: width, height: height, resizeMode:'contain'}}
+                />
                 </View>
-                <View>
-                <ImageBackground
-                source={GymSplatBackground}
-                style={{position:'absolute', width: width, height: height, resizeMode:'contain'}}
-              />
-              </View>
-              <Text style={{marginTop: 20, fontWeight: 'bold', fontSize: 20, marginLeft: 20, color: '#404F65'}}> Activity Times </Text>
-              <View style={{justifyContent: 'center', position: 'relative'}}>
-                  <ScrollView>
-                  <Block center>
+                <Text style={{marginTop: 20, fontWeight: 'bold', fontSize: 20, marginLeft: 20, color: '#404F65'}}> Activity Times </Text>
+                <View style={{justifyContent: 'center', position: 'relative'}}>
+                    <ScrollView>
+                    <Block center>
 
-               <ScrollView horizontal style={{height: 1000}}>
-                    <Card style={{justifyContent: 'center', elevation: 5, textAlign: 'center', backgroundColor: 'white', shadowOpacity: .2, marginLeft: 10, height: 200, width: width * .9, borderRadius: 7, shadowColor: 'black', shadowRadius: 10, marginTop: 20}}>
-                        <CardTitle style={{marginLeft: 10}}
-                        title="8 active people"
-                        subTitle="Clifton, Western Cape"
-                        />
-                         <CardContent style={{marginLeft: 12,fontWeight: 'bold', fontFamily: 'Avenir Next'}} text="Weights Section" />
+                <ScrollView horizontal style={{height: 1000}}>
+                      <Card style={{justifyContent: 'center', elevation: 5, textAlign: 'center', backgroundColor: 'white', shadowOpacity: .2, marginLeft: 10, height: 200, width: width * .9, borderRadius: 7, shadowColor: 'black', shadowRadius: 10, marginTop: 20}}>
+                          <CardTitle style={{marginLeft: 10}}
+                          title="8 active people"
+                          subTitle="Clifton, Western Cape"
+                          />
+                          <CardContent style={{marginLeft: 12,fontWeight: 'bold', fontFamily: 'Avenir Next'}} text="Weights Section" />
 
-                        <Text style={{marginLeft: 20, marginBottom: 30, fontSize: 10}}> Updated at: 3/4/20 at 3PM EST </Text>
-                    </Card>
-                    </ScrollView>
-                    </Block>
+                          <Text style={{marginLeft: 20, marginBottom: 30, fontSize: 10}}> Updated at: 3/4/20 at 3PM EST </Text>
+                      </Card>
+                      </ScrollView>
+                      </Block>
 
-                    </ScrollView>
-                    </View>
+                      </ScrollView>
+                </View>
           </View>
         );
     }

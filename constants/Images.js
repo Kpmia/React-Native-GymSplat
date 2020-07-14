@@ -11,6 +11,10 @@ export const machineImages = {
   Bike: require("../assets/machines/bike.png"),
 }
 
+export const alertIcons = {
+  info: require('../assets/icons/alertbutton.png')
+}
+
 export default {
   Onboarding,
   Logo,

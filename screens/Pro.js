@@ -18,6 +18,7 @@ const { height, width } = Dimensions.get("screen");
 import SignUpPage from "../assets/imgs/SignUpPage.jpg";
 import Storage from "react-native-storage";
 import AsyncStorage from "@react-native-community/async-storage";
+import AuthManager from '../screens/networking/AuthManager';
 
 const axios = require("axios");
 
@@ -39,68 +40,32 @@ export default class Pro extends React.Component {
       lastName: "",
     };
   }
-
-  signUp = (event) => {
+  signUpButton = async(event) => {
     if (
       this.state.email == "" ||
       this.state.password == "" ||
       this.state.firstName == "" ||
       this.state.lastName == ""
-    ) {
+      ) {
       alert("All fields are not filled.");
       return;
-    }
-    const userInfo = {
-      email: this.state.email,
-      password: this.state.password,
-      firstName: this.state.firstName,
-      lastName: this.state.lastName,
-      role: "Member",
-    };
-    axios({
-      method: "post",
-      url: "http://gym-splat-backend.ue.r.appspot.com/signUp",
-      data: userInfo,
-      headers: { "Content-Type": "application/json" },
-    })
-      .then((response) => {
-        storage.save({
-          key: "email",
-          data: this.state.email,
-          expires: 1000 * 3600,
-        });
-        storage.save({
-          key: "uid",
-          data: response.data.user._id,
-          expires: 1000 * 3600,
-        });
-        storage.save({
-          key: "firstName",
-          data: response.data.user.firstName,
-          expires: 1000 * 3600,
-        });
-        storage.save({
-          key: "lastName",
-          data: response.data.user.lastName,
-          expires: 1000 * 3600,
-        });
-
-        const { navigation } = this.props;
-        navigation.navigate("Tutorial");
-      })
-      .catch((error) => {
-        console.log(error);
-
-        alert("Sorry! Please try again.");
-        return;
-      });
+      }
+      const success = await AuthManager.signUp(
+        this.state.email,
+        this.state.password,
+        this.state.firstName,
+        this.state.lastName,
+      );
+      if (success) {
+        console.log("login success");
+        this.props.navigation.navigate("Tutorial");
+      } else {
+        alert("Error logging in, try again!");
+      }
   };
-
-  componentDidMount() {}
 
   render() {
     const { navigation } = this.props;
-
     return (
       <Block flex style={styles.container}>
         <StatusBar hidden />
@@ -126,7 +91,7 @@ export default class Pro extends React.Component {
               <Text> Email Address </Text>
               <Input
                 style={{ border: "none" }}
-                onChangeText={(text) => this.setState({ email: text })}
+                onChangeText={(text) => this.setState({ email : text })}
                 placeholder="Please enter your email address"
               />
             </Block>
@@ -151,13 +116,13 @@ export default class Pro extends React.Component {
                 placeholder="Please enter a password"
               />
             </Block>
-            <Button
-              style={styles.button}
-              title="Submit"
-              color={"#7D6EFE"}
-              onPress={this.signUp}
-              textStyle={{ color: "white", fontWeight: "bold" }}
-            >
+              <Button
+                style={styles.button}
+                title="Submit"
+                color={"#7D6EFE"}
+                onPress={this.signUpButton}
+                textStyle={{ color: "white", fontWeight: "bold" }}
+                >
               Submit
             </Button>
           </Block>

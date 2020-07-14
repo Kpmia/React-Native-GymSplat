@@ -91,6 +91,8 @@ function AppStack(props) {
       }}
       initialRouteName="Home"
     >
+      {HomeStack()}
+      
     </Drawer.Navigator>
   );
 }
